@@ -58,7 +58,6 @@ else:
 # other
 categories["duplicate"] = args.duplicate
 categories["verbose"] = args.verbose
-# categories["output"] = args.output
 categories["shares"] = args.shares
 
 
@@ -80,19 +79,17 @@ def banner(categories):
 
     print(f"""{BAD}
 
-     _______  __    _  _______  _______  _______         _______  _______  _______  ______    _______  __   __
+     _______  __    _  _______  _______  _______         _______  _______  _______  ______    _______  __   __ 
     |       ||  |  | ||   _   ||       ||       |       |       ||       ||   _   ||    _ |  |       ||  | |  |
     |  _____||   |_| ||  |_|  ||    ___||    ___| ____  |  _____||    ___||  |_|  ||   | ||  |       ||  |_|  |
     | |_____ |       ||       ||   |___ |   |___ |____| | |_____ |   |___ |       ||   |_||_ |       ||       |
     |_____  ||  _    ||       ||    ___||    ___|       |_____  ||    ___||       ||    __  ||      _||       |
      _____| || | |   ||   _   ||   |    |   |            _____| ||   |___ |   _   ||   |  | ||     |_ |   _   |
-    |_______||_|  |__||__| |__||___|    |___|           |_______||_______||__| |__||___|  |_||_______||__| |__|
-
-     {RST}{INFO}v1.0{RST}
+    |_______||_|  |__||__| |__||___|    |___|           |_______||_______||__| |__||___|  |_||_______||__| |__|                                                                         
+     {RST}{INFO}v1.1{RST}
 
     """)
     print(f"{INFO}[*] Input:\t{DETAIL}{categories['input']}{RST}")
-    # print(f"{INFO}[*] Output:\t{DETAIL}{categories['output']}{RST}")
     print(f"{INFO}[*] Duplicates:\t{DETAIL}{categories['duplicate']}{RST}")
     print(f"{INFO}[*] Include:\t{DETAIL}{categories['include']}{RST}")
     print(f"{INFO}[*] Exclude:\t{DETAIL}{categories['exclude']}{RST}")
@@ -103,7 +100,6 @@ def banner(categories):
     print(f"{INFO}[*] Shares:\t{DETAIL}{categories['shares']}{RST}")
     print(f"{INFO}[*] Verbose:\t{DETAIL}{categories['verbose']}{RST}")
     print("")
-    time.sleep(2)
 
 
 def verbose_print(message):
@@ -114,27 +110,24 @@ def verbose_print(message):
 
 def check_snaff_file(input_file):
 
-    try:
-        snaffler_log_file = codecs.open(input_file, "r", encoding='utf-8', errors='ignore')
-    except:
-        print(f"{BAD}[-] Can't find file:\t{DETAIL}{input_file}{RST}")
-        quit()
     is_it_json = ""
-    try:
-        snaffler_data = json.load(snaffler_log_file)
-        is_it_json = True
-    except Exception as error:
-        # if we get a loading error then assume we've got a non-JSON log file
-        # fuck you
-        snaffler_data = ""
-        is_it_json = False
+    snaffler_data = []
+    with open(input_file, 'r') as file:
+        try:
+            data = json.load(file)
+            snaffler_data = data.get('entries', [])
+            is_it_json = True
+        except Exception as e:
+            # not a json file
+            snaffler_data = ""
+            is_it_json = False
 
     return is_it_json, snaffler_data
 
 
 def get_snaff_shares_json(snaffler_json_data):
 
-    for snaffler_entry in snaffler_json_data["entries"]:
+    for snaffler_entry in snaffler_json_data:
         COLOUR = ''
         # only get warning entries
         if snaffler_entry["level"] == "Warn":
@@ -146,7 +139,6 @@ def get_snaff_shares_json(snaffler_json_data):
                         share_path = snaffler_entry["eventProperties"][colour][log_type]["SharePath"]
                         temporary_dict["path"] = share_path
                         temporary_dict["colour"] = colour.upper()
-                        print(f"temporary colour is: {temporary_dict['colour']}")
                         if temporary_dict['colour'] == "YELLOW":
                             COLOUR = DETAIL
                         elif temporary_dict['colour'] == "GREEN":
@@ -192,7 +184,7 @@ def get_snaff_shares_other(input_file):
 
 def get_snaff_files_json(snaffler_json_data):
 
-    for snaffler_entry in snaffler_json_data["entries"]:
+    for snaffler_entry in snaffler_json_data:
         # only get warning entries
         if snaffler_entry["level"] == "Warn":
             # for some reason, some entries dont have event properties
@@ -233,14 +225,15 @@ def get_snaff_files_json(snaffler_json_data):
                     pass
 
             else:
+                verbose_print("NO EVENT PROPERTIES")
                 try:
                     # this is for when the log does have an eventProperties element
                     # gotta do it dirty
                     # get the {Colour} bit
                     colour = re.search(r" \{\w+\}", snaffler_entry["message"]).group()
                     if (colour == ""):
-                        print("colour is null")
-                        input()
+                        verbose_print("colour is null")
+                        quit()
                     if colour == " {Red}":
                         found_colour = "Red"
                     elif colour == " {Green}":
@@ -250,6 +243,7 @@ def get_snaff_files_json(snaffler_json_data):
                     elif colour == " {Other}":
                         found_colour = "Black"
                     temporary_dict["colour"] = found_colour.upper()
+                    verbose_print(found_colour)
                     # get the why and extra parts dirty
                     why_extra_dirty = re.split(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}Z", snaffler_entry["message"])
                     why_part = re.search(r"<\w+\|", why_extra_dirty[1]).group()
@@ -312,7 +306,7 @@ def get_snaff_files_other(input_file):
                 # file_list = [classification, filename, extras, why]
                 files.append(temporary_dict)
             except Exception as e:
-                print(f"{BAD}[-] Error:\n{DETAIL}e{RST}")
+                print(f"{BAD}[-] Error:\n{DETAIL}{e}{RST}")
 
     return files
 
@@ -464,11 +458,12 @@ def print_snaff_entries(snaffler_entries_list):
             COLOUR = DETAIL
         if args.names:
             try:
-                print(x['fullname'])
+                print(f"{INFO}x['fullname']")
+                print("")
             except:
                 pass
         else:
-            print(f"{INFO}[*] Colour:\n{COLOUR}{x['colour']}{RST}")
+            print(f"{INFO}[*] Class:\n{COLOUR}{x['colour']}{RST}")
             try:
                 print(f"{INFO}[*] File:\n{DETAIL}{x['fullname']}{RST}")
             except:
@@ -482,8 +477,11 @@ def print_snaff_entries(snaffler_entries_list):
             except:
                 pass
             print("")
+            print("")
     print("")
     print(f"{INFO}[*] Finished {DETAIL}({len(snaffler_entries_list)} items found{RST})")
+
+
 
 
 # main
@@ -493,11 +491,13 @@ banner(categories)
 # check if we've got a json file or not
 is_it_json, snaffler_data = check_snaff_file(args.input)
 if is_it_json:
+    print(f"{INFO}[*] Snaffler log is in JSON format")
     # print shares if wanted
     if categories["shares"]:
         get_snaff_shares_json(snaffler_data)
     snaffler_entries_list = get_snaff_files_json(snaffler_data)
 else:
+    print(f"{INFO}[*] Snaffler log is in standard format")
     # print shares if wanted
     if categories["shares"]:
         get_snaff_shares_other(args.input)
@@ -505,3 +505,4 @@ else:
 
 trimmed_snaffler_list = trim_snaff_entries(snaffler_entries_list, categories)
 print_snaff_entries(trimmed_snaffler_list)
+
