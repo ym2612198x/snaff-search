@@ -1,9 +1,12 @@
 # snaff-search
 
-usage: snaff-search.py [-h] -i INPUT [-d] [-e EXCLUDE] [-w INCLUDE] [-n] [-yellow] [-green] [-red] [-black] [-shares] [-all] [-v]
+Search Snaffler (https://github.com/SnaffCon/Snaffler) log files
+Include/Exclude colours words etc.
+Usage: `snaff-search.py [-h] -i INPUT [-d] [-e EXCLUDE] [-w INCLUDE] [-n] [-yellow] [-green] [-red] [-black] [-shares] [-all] [-v]`
 
-options:
+Options:
 ```
+
   -i INPUT, --input INPUT         Filename of Snaffler log
   -e EXCLUDE, --exclude EXCLUDE   List of words to exclude from results (comma separated eg. ".inc,example,etc")
   -w INCLUDE, --include INCLUDE   List of words to include in results (comma separated eg. "password,username,.ps1")
@@ -16,4 +19,5 @@ options:
   -shares, --shares               Print share info
   -all, --all                     Print all items
   -v, --verbose                   Show verbose messages
+
 ```
