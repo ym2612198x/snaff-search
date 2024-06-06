@@ -8,7 +8,6 @@ import time
 # args
 arg_parser = argparse.ArgumentParser(description='Snaffler log parser')
 arg_parser.add_argument('-i', '--input', required=True, help='Filename of Snaffler log')
-# arg_parser.add_argument('-o', '--output', help='Output filename, prints to stdout if none', default=None)
 arg_parser.add_argument('-d', '--duplicate', help='Include duplicate entries', action="store_true", default=False)
 arg_parser.add_argument('-e', '--exclude', help='List of words to exclude from results (comma separated eg. ".inc,example,etc")')
 arg_parser.add_argument('-w', '--include', help='List of words to include in results (comma separated eg. "password,username,.ps1")')
