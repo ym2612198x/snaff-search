@@ -1,7 +1,7 @@
 # snaff-search
 
-Search Snaffler (https://github.com/SnaffCon/Snaffler) log files
-Include/Exclude colours words etc.
+Search Snaffler (https://github.com/SnaffCon/Snaffler) log files<br>
+Include/Exclude colours words etc.<br>
 Usage: `snaff-search.py [-h] -i INPUT [-d] [-e EXCLUDE] [-w INCLUDE] [-n] [-yellow] [-green] [-red] [-black] [-shares] [-all] [-v]`
 
 Options:
