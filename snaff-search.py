@@ -468,7 +468,7 @@ def print_snaff_entries(snaffler_entries_list):
             except:
                 pass
             try:
-                print(f"{INFO}[*] Why:\n{OTHER}{x['why']}{RST}")
+                print(f"{INFO}[*] Why:\n{DETAIL}{x['why']}{RST}")
             except:
                 pass
             try:
